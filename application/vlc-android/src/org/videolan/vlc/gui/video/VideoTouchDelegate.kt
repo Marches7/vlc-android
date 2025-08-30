@@ -52,6 +52,7 @@ const val TOUCH_FLAG_SWIPE_SEEK = 1 shl 4
 const val TOUCH_FLAG_SCREENSHOT = 1 shl 5
 const val TOUCH_FLAG_SCALE = 1 shl 6
 const val TOUCH_FLAG_FASTPLAY = 1 shl 7
+const val TOUCH_FLAG_VIDEO_SWITCH = 1 shl 8
 //Touch Events
 private const val TOUCH_NONE = 0
 private const val TOUCH_VOLUME = 1
@@ -61,6 +62,7 @@ private const val TOUCH_TAP_SEEK = 4
 private const val TOUCH_IGNORE = 5
 private const val TOUCH_SCREENSHOT = 6
 private const val TOUCH_FASTPLAY = 7
+private const val TOUCH_VIDEO_SWITCH = 8
 
 private const val MIN_FOV = 20f
 private const val MAX_FOV = 150f
@@ -267,7 +269,7 @@ class VideoTouchDelegate(private val player: VideoPlayerActivity,
                             return true
                         }
                         // Vertical actions
-                        if (touchAction == TOUCH_VOLUME || touchAction == TOUCH_BRIGHTNESS) {
+                        if (touchAction == TOUCH_VOLUME || touchAction == TOUCH_BRIGHTNESS || touchAction == TOUCH_VIDEO_SWITCH) {
                             doVerticalTouchAction(yChanged)
                             return true
                         }
@@ -371,6 +373,15 @@ class VideoTouchDelegate(private val player: VideoPlayerActivity,
 
     private fun doVerticalTouchAction(y_changed: Float) {
         if (BuildConfig.DEBUG) Log.d(this::class.java.simpleName, "doVerticalTouchAction $y_changed // ${screenConfig.metrics.widthPixels} // ${3 * screenConfig.metrics.widthPixels / 7f} // $touchX")
+        
+        // Check if video switch is enabled
+        val videoSwitch = touchControls and TOUCH_FLAG_VIDEO_SWITCH != 0
+        if (videoSwitch) {
+            doVideoSwitchTouch(y_changed)
+            return
+        }
+        
+        // Original brightness and volume control logic
         val rightAction = touchX.toInt() > 4 * screenConfig.metrics.widthPixels / 7f
         val leftAction = !rightAction && touchX.toInt() < 3 * screenConfig.metrics.widthPixels / 7f
         if (!leftAction && !rightAction) return
@@ -484,6 +495,34 @@ class VideoTouchDelegate(private val player: VideoPlayerActivity,
         val delta = -ychanged / screenConfig.yRange * 1.25f
 
         player.changeBrightness(delta)
+    }
+
+    private fun doVideoSwitchTouch(y_changed: Float) {
+        if (BuildConfig.DEBUG) Log.d(this::class.java.simpleName, "doVideoSwitchTouch $y_changed")
+        if (!initInAllowedBounds) return
+        if (touchAction != TOUCH_NONE && touchAction != TOUCH_VIDEO_SWITCH) return
+        
+        // Set minimum swipe threshold to avoid accidental switches
+        val swipeThreshold = screenConfig.yRange * 0.15f // 15% of screen height
+        
+        if (y_changed.absoluteValue > swipeThreshold) {
+            touchAction = TOUCH_VIDEO_SWITCH
+            
+            if (y_changed > 0) {
+                // Swipe down - go to previous video
+                if (player.service?.hasPrevious() == true) {
+                    player.previous()
+                    player.overlayDelegate.showInfo(player.getString(R.string.previous), 1000)
+                }
+            } else {
+                // Swipe up - go to next video
+                if (player.service?.hasNext() == true) {
+                    player.next()
+                    player.overlayDelegate.showInfo(player.getString(R.string.next), 1000)
+                }
+            }
+            player.overlayDelegate.hideOverlay(true)
+        }
     }
 
     private val mScaleListener = object : ScaleGestureDetector.SimpleOnScaleGestureListener() {

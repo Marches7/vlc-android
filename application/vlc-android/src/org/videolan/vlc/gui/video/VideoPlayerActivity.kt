@@ -148,6 +148,7 @@ import org.videolan.tools.ENABLE_FASTPLAY
 import org.videolan.tools.ENABLE_SCALE_GESTURE
 import org.videolan.tools.ENABLE_SEEK_BUTTONS
 import org.videolan.tools.ENABLE_SWIPE_SEEK
+import org.videolan.tools.ENABLE_VIDEO_SWITCH_GESTURE
 import org.videolan.tools.ENABLE_VOLUME_GESTURE
 import org.videolan.tools.KEY_AUDIO_BOOST
 import org.videolan.tools.KEY_AUDIO_PREFERRED_LANGUAGE
@@ -705,10 +706,12 @@ open class VideoPlayerActivity : AppCompatActivity(), PlaybackService.Callback, 
      * @return the flag corresponding to the gesture the user wants to use
      */
     private fun generateTouchFlags() = if (!isTv) {
-        val audioTouch = (!VlcMigrationHelper.isLolliPopOrLater || !audiomanager.isVolumeFixed) && settings.getBoolean(ENABLE_VOLUME_GESTURE, true)
-        val brightnessTouch = !AndroidDevices.isChromeBook && settings.getBoolean(ENABLE_BRIGHTNESS_GESTURE, true)
+        val videoSwitchTouch = settings.getBoolean(ENABLE_VIDEO_SWITCH_GESTURE, false)
+        val audioTouch = (!VlcMigrationHelper.isLolliPopOrLater || !audiomanager.isVolumeFixed) && settings.getBoolean(ENABLE_VOLUME_GESTURE, true) && !videoSwitchTouch
+        val brightnessTouch = !AndroidDevices.isChromeBook && settings.getBoolean(ENABLE_BRIGHTNESS_GESTURE, true) && !videoSwitchTouch
         ((if (audioTouch) TOUCH_FLAG_AUDIO_VOLUME else 0)
                 + (if (brightnessTouch) TOUCH_FLAG_BRIGHTNESS else 0)
+                + (if (videoSwitchTouch) TOUCH_FLAG_VIDEO_SWITCH else 0)
                 + (if (settings.getBoolean(ENABLE_DOUBLE_TAP_SEEK, true)) TOUCH_FLAG_DOUBLE_TAP_SEEK else 0)
                 + (if (settings.getBoolean(ENABLE_DOUBLE_TAP_PLAY, true)) TOUCH_FLAG_PLAY else 0)
                 + (if (settings.getBoolean(ENABLE_SWIPE_SEEK, true)) TOUCH_FLAG_SWIPE_SEEK else 0)
@@ -2559,7 +2562,7 @@ open class VideoPlayerActivity : AppCompatActivity(), PlaybackService.Callback, 
      */
     fun onChangedControlSetting(key: String) = when(key) {
         KEY_AUDIO_BOOST -> isAudioBoostEnabled = settings.getBoolean(KEY_AUDIO_BOOST, true)
-        ENABLE_VOLUME_GESTURE, ENABLE_BRIGHTNESS_GESTURE, ENABLE_DOUBLE_TAP_SEEK, ENABLE_DOUBLE_TAP_PLAY, ENABLE_SWIPE_SEEK, ENABLE_SCALE_GESTURE, ENABLE_FASTPLAY -> touchDelegate.touchControls = generateTouchFlags()
+        ENABLE_VOLUME_GESTURE, ENABLE_BRIGHTNESS_GESTURE, ENABLE_VIDEO_SWITCH_GESTURE, ENABLE_DOUBLE_TAP_SEEK, ENABLE_DOUBLE_TAP_PLAY, ENABLE_SWIPE_SEEK, ENABLE_SCALE_GESTURE, ENABLE_FASTPLAY -> touchDelegate.touchControls = generateTouchFlags()
         SCREENSHOT_MODE -> {
             touchDelegate.touchControls = generateTouchFlags()
             overlayDelegate.updateScreenshotButton()

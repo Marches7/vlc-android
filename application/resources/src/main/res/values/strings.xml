@@ -409,6 +409,8 @@
     <string name="enable_brightness_gesture_summary">Control brightness by gesture during video playback</string>
     <string name="enable_volume_gesture_title">Volume gesture</string>
     <string name="enable_volume_gesture_summary">Control volume by gesture during video playback</string>
+    <string name="enable_video_switch_gesture_title">Video switch gesture</string>
+    <string name="enable_video_switch_gesture_summary">Swipe up/down to switch to next/previous video (replaces brightness and volume gestures)</string>
     <string name="enable_seek_buttons">Seek buttons</string>
     <string name="enable_seek_buttons_summary">Show rewind and fast forward buttons on the video interface</string>
     <string name="enable_android_auto_speed_buttons">Android Auto playback speed</string>
