@@ -33,7 +33,7 @@ jobs:
         
     - name: Build VLC-Android (arm64-v8a Release)
       run: |
-        chmod +x compile.sh
+        chmod +x ./buildsystem/compile.sh
         ./buildsystem/compile.sh -a arm64-v8a --release
 
     - name: Upload APK
