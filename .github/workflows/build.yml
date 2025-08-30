@@ -51,8 +51,13 @@ jobs:
         chmod +x ./buildsystem/compile.sh
         ./buildsystem/compile.sh -a arm64-v8a --release
 
+    - name: Find APK files
+      run: |
+        echo "Searching for APK files..."
+        find . -name "*.apk" -print
+
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
         name: release-apk
-        path: app/build/outputs/apk/release/*.apk
+        path: '**/*.apk'
