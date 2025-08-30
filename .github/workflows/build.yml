@@ -31,10 +31,19 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y wget unzip curl build-essential pkg-config autoconf libtool automake python3 ninja-build
 
+    - name: Install Android NDK
+      run: |
+        # 安装指定版本的NDK
+        sdkmanager --install "ndk;27.3.13750724"
+        
+
     - name: Set environment variables
       run: |
         echo "ANDROID_SDK=$ANDROID_SDK_ROOT" >> $GITHUB_ENV
         echo "ANDROID_NDK=$ANDROID_SDK_ROOT/ndk-bundle" >> $GITHUB_ENV
+        # 配置NDK路径环境变量
+        echo "ANDROID_NDK_HOME=$ANDROID_SDK_ROOT/ndk/27.3.13750724" >> $GITHUB_ENV
+        echo "PATH=$ANDROID_SDK/platform-tools:$ANDROID_SDK/tools:$PATH" >> $GITHUB_ENV
         
     - name: Build VLC-Android (arm64-v8a Release)
       run: |
