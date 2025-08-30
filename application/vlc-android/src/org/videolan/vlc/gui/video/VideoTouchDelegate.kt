@@ -499,13 +499,17 @@ class VideoTouchDelegate(private val player: VideoPlayerActivity,
 
     private fun doVideoSwitchTouch(y_changed: Float) {
         if (BuildConfig.DEBUG) Log.d(this::class.java.simpleName, "doVideoSwitchTouch $y_changed")
+        Log.d(this::class.java.simpleName, "initInAllowedBounds: $initInAllowedBounds")
+        Log.d(this::class.java.simpleName, "touchAction: $touchAction")
         if (!initInAllowedBounds) return
         if (touchAction != TOUCH_NONE && touchAction != TOUCH_VIDEO_SWITCH) return
         
         // Set minimum swipe threshold to avoid accidental switches
         val swipeThreshold = screenConfig.yRange * 0.15f // 15% of screen height
-        
+        Log.d(this::class.java.simpleName, "swipeThreshold: $swipeThreshold")
+        Log.d(this::class.java.simpleName, "y_changed.absoluteValue: ${y_changed.absoluteValue}")
         if (y_changed.absoluteValue > swipeThreshold) {
+            Log.d(this::class.java.simpleName, "threshold reached")
             touchAction = TOUCH_VIDEO_SWITCH
             
             if (y_changed > 0) {
