@@ -29,7 +29,9 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y wget unzip curl build-essential pkg-config autoconf libtool automake python3 ninja-build
+        sudo apt-get install -y automake ant autopoint cmake build-essential libtool-bin \
+         patch pkg-config protobuf-compiler ragel subversion unzip git \
+         flex python wget gettext
 
     - name: Install Android NDK
       run: |
