@@ -21,11 +21,20 @@ jobs:
     - name: Set up Android SDK
       uses: android-actions/setup-android@v3
         
-    - name: Setup Gradle
-      uses: gradle/gradle-build-action@v3
-      
-    - name: Build with Gradle
-      run: ./gradle build
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y wget unzip curl build-essential pkg-config autoconf libtool automake python3 ninja-build
+
+    - name: Set environment variables
+      run: |
+        echo "ANDROID_SDK=$ANDROID_SDK_ROOT" >> $GITHUB_ENV
+        echo "ANDROID_NDK=$ANDROID_SDK_ROOT/ndk-bundle" >> $GITHUB_ENV
+        
+    - name: Build VLC-Android (arm64-v8a Release)
+      run: |
+        chmod +x compile.sh
+        ./buildsystem/compile.sh -a arm64-v8a --release
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
